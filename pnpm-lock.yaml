@@ -8,9 +8,24 @@ importers:
 
   .:
     dependencies:
+      '@tanstack/react-query':
+        specifier: ^5.90.21
+        version: 5.90.21(react@19.2.4)
+      '@trpc/client':
+        specifier: ^11.13.4
+        version: 11.13.4(@trpc/server@11.13.4(typescript@5.9.3))(typescript@5.9.3)
+      '@trpc/server':
+        specifier: ^11.13.4
+        version: 11.13.4(typescript@5.9.3)
+      '@trpc/tanstack-react-query':
+        specifier: ^11.13.4
+        version: 11.13.4(@tanstack/react-query@5.90.21(react@19.2.4))(@trpc/client@11.13.4(@trpc/server@11.13.4(typescript@5.9.3))(typescript@5.9.3))(@trpc/server@11.13.4(typescript@5.9.3))(react@19.2.4)(typescript@5.9.3)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
+      client-only:
+        specifier: ^0.0.1
+        version: 0.0.1
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -38,9 +53,15 @@ importers:
       react-dom:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4.2.1
@@ -1854,6 +1875,34 @@ packages:
 
   '@tailwindcss/postcss@4.2.1':
     resolution: {integrity: sha512-OEwGIBnXnj7zJeonOh6ZG9woofIjGrd2BORfvE5p9USYKDCZoQmfqLcfNiRWoJlRWLdNPn2IgVZuWAOM4iTYMw==}
+
+  '@tanstack/query-core@5.90.20':
+    resolution: {integrity: sha512-OMD2HLpNouXEfZJWcKeVKUgQ5n+n3A2JFmBaScpNDUqSrQSjiveC7dKMe53uJUg1nDG16ttFPz2xfilz6i2uVg==}
+
+  '@tanstack/react-query@5.90.21':
+    resolution: {integrity: sha512-0Lu6y5t+tvlTJMTO7oh5NSpJfpg/5D41LlThfepTixPYkJ0sE2Jj0m0f6yYqujBwIXlId87e234+MxG3D3g7kg==}
+    peerDependencies:
+      react: ^18 || ^19
+
+  '@trpc/client@11.13.4':
+    resolution: {integrity: sha512-AOM7u2blAjjpAzEyDXm4bk8f1HML0sFLuSXPsqZHQX3XCIVo7+mlArEAGMbwEtTwW8hUocI0i3/9tVYUF4Nu0g==}
+    peerDependencies:
+      '@trpc/server': 11.13.4
+      typescript: '>=5.7.2'
+
+  '@trpc/server@11.13.4':
+    resolution: {integrity: sha512-SZmLwi43KSp1D3jp2aPuzqhC644gIy87hgFuD9xWCTwFspH9Pr5DO2/JmpWjCqybTG2fTuKYzxFYLUGjTY5LGg==}
+    peerDependencies:
+      typescript: '>=5.7.2'
+
+  '@trpc/tanstack-react-query@11.13.4':
+    resolution: {integrity: sha512-/R6iKghuRWjiviY3lv8e/OVfe8CucqPh6IOKipbQHXIWv/BYzJbaOhS/gZXRYk4aSa+lUzxhob/NheXOmpZsMg==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.80.3
+      '@trpc/client': 11.13.4
+      '@trpc/server': 11.13.4
+      react: '>=18.2.0'
+      typescript: '>=5.7.2'
 
   '@ts-morph/common@0.27.0':
     resolution: {integrity: sha512-Wf29UqxWDpc+i61k3oIOzcUfQt79PIT9y/MWfAGlrkjg6lBC1hwDECLXPVJAhWjiGbfBCxZd65F/LIZF3+jeJQ==}
@@ -3965,6 +4014,9 @@ packages:
     resolution: {integrity: sha512-xRXBn0pPqQTVQiC8wyQrKs2MOlX24zQ0POGaj0kultvoOCstBQM5yvOhAVSUwOMjQtTvsPWoNCHfPGwaaQJhTw==}
     engines: {node: '>= 18'}
 
+  server-only@0.0.1:
+    resolution: {integrity: sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA==}
+
   set-function-length@1.2.2:
     resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
     engines: {node: '>= 0.4'}
@@ -5998,6 +6050,30 @@ snapshots:
       '@tailwindcss/oxide': 4.2.1
       postcss: 8.5.6
       tailwindcss: 4.2.1
+
+  '@tanstack/query-core@5.90.20': {}
+
+  '@tanstack/react-query@5.90.21(react@19.2.4)':
+    dependencies:
+      '@tanstack/query-core': 5.90.20
+      react: 19.2.4
+
+  '@trpc/client@11.13.4(@trpc/server@11.13.4(typescript@5.9.3))(typescript@5.9.3)':
+    dependencies:
+      '@trpc/server': 11.13.4(typescript@5.9.3)
+      typescript: 5.9.3
+
+  '@trpc/server@11.13.4(typescript@5.9.3)':
+    dependencies:
+      typescript: 5.9.3
+
+  '@trpc/tanstack-react-query@11.13.4(@tanstack/react-query@5.90.21(react@19.2.4))(@trpc/client@11.13.4(@trpc/server@11.13.4(typescript@5.9.3))(typescript@5.9.3))(@trpc/server@11.13.4(typescript@5.9.3))(react@19.2.4)(typescript@5.9.3)':
+    dependencies:
+      '@tanstack/react-query': 5.90.21(react@19.2.4)
+      '@trpc/client': 11.13.4(@trpc/server@11.13.4(typescript@5.9.3))(typescript@5.9.3)
+      '@trpc/server': 11.13.4(typescript@5.9.3)
+      react: 19.2.4
+      typescript: 5.9.3
 
   '@ts-morph/common@0.27.0':
     dependencies:
@@ -8223,6 +8299,8 @@ snapshots:
       send: 1.2.1
     transitivePeerDependencies:
       - supports-color
+
+  server-only@0.0.1: {}
 
   set-function-length@1.2.2:
     dependencies:
