@@ -165,7 +165,7 @@ const SignUpCard = () => {
           className="w-full cursor-pointer py-6 text-lg"
           disabled={form.formState.isSubmitting}
         >
-          <FcGoogle className="size-[32px]" />
+          <FcGoogle className="size-8" />
           Google
         </Button>
       </CardContent>
