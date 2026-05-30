@@ -8,16 +8,21 @@ export const auth = betterAuth({
     provider: "pg",
     schema,
   }),
+  advanced: {
+    database: {
+      generateId: false,
+    },
+  },
   baseURL: process.env.BETTER_AUTH_URL,
 
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
     // requireEmailVerification: true,
-    
   },
   socialProviders: {
     google: {
+      prompt: "select_account",
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },

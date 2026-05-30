@@ -1,39 +1,50 @@
-import { caller, getQueryClient, trpc } from "@/trpc/server";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { Suspense } from "react";
-import { Client } from "./client";
-import { requireAuth } from "@/lib/auth-utils";
+"use client";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import LogoutButton from "./logout";
+import { Button } from "@/components/ui/button";
+import { useTRPC } from "@/trpc/client";
 
-const Home = async () => {
-  // const queryClient = getQueryClient()
+const Home = () => {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
 
-  // void queryClient.prefetchQuery(trpc.getUsers.queryOptions())
+  const { data } = useQuery({ ...trpc.getWorkflows.queryOptions(), refetchInterval: 5_000 });
 
-  await requireAuth();
+  const createWorkflow = useMutation(
+    trpc.createWorkflow.mutationOptions({
+      onSuccess: () =>
+        queryClient.invalidateQueries(trpc.getWorkflows.queryOptions()),
+    }),
+  );
 
-  const users = await caller.getUsers();
+  const deleteWorkflow = useMutation(trpc.deleteWorkflow.mutationOptions({
+    onSuccess: () => queryClient.invalidateQueries(trpc.getWorkflows.queryOptions())
+  })
+
+  )
 
   return (
-    <div className="mx-32 flex h-screen flex-col items-center justify-center text-wrap">
-      {/* <HydrationBoundary state={dehydrate(queryClient)}>
-        <Suspense fallback={<p>loading...</p>} >
-         <Client/>
-        </Suspense>
-      </HydrationBoundary> */}
-
+    <div className="mx-32 flex min-h-screen flex-col items-center justify-center gap-4 text-wrap">
       <div className="text-3xl font-bold">
         Protected Page. Requires Authentication.
       </div>
       <div>
-        {users.map((user, idx) => {
-          return (
-            <div key={idx} className="py-2">
-              {JSON.stringify(user)} 
+        {data?.map((data, idx) => {
+          return (<div key={idx} className="flex justify-center items-center gap-4">
+            <div className="py-2">
+              {JSON.stringify(data)}
+
             </div>
+            <Button disabled={deleteWorkflow.isPending} onClick={() => deleteWorkflow.mutate({ id: data.id })}>Delete</Button>
+          </div>
           );
         })}
       </div>
+
+      <Button disabled={createWorkflow.isPending} onClick={() => createWorkflow.mutate()}>
+        Create Workflow
+      </Button>
       <LogoutButton />
     </div>
   );

@@ -1,6 +1,0 @@
----
-alwaysApply: true
----
-
-onSuccess: () => {
-          router.push("/")

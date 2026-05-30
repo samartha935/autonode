@@ -1,0 +1,9 @@
+procs: 
+  inngest:
+    cmd: ["pnpm", "inngest-cli", "dev"]
+
+  next: 
+    cmd: ["pnpm", "run", "dev"]
+
+  drizzle:
+    cmd: ["pnpm", "drizzle-kit", "studio"]

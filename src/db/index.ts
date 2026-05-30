@@ -1,11 +1,22 @@
 import 'dotenv/config';
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import * as schema from "@/db/schema"
+import * as schema from "@/db/schema";
 
-const pool = new Pool({
+const globalForDb = globalThis as unknown as {
+  conn: Pool | undefined;
+};
+
+const pool = globalForDb.conn ?? new Pool({
   connectionString: process.env.DATABASE_URL!,
 });
 
-console.log("database connected");
-export const db = drizzle({ client: pool , schema });
+if (process.env.NODE_ENV !== 'production') {
+  globalForDb.conn = pool;
+}
+
+if (!globalForDb.conn) {
+  console.log("database connected");
+}
+
+export const db = drizzle({ client: pool, schema });

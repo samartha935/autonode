@@ -54,6 +54,13 @@ const SignUpCard = () => {
     );
   };
 
+  const OnOAuthSignIn = async () => {
+    const data = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/",
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -164,8 +171,9 @@ const SignUpCard = () => {
           variant={"outline"}
           className="w-full cursor-pointer py-6 text-lg"
           disabled={form.formState.isSubmitting}
+          onClick={OnOAuthSignIn}
         >
-          <FcGoogle className="size-[32px]" />
+          <FcGoogle className="size-8" />
           Google
         </Button>
       </CardContent>
