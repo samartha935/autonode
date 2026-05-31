@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { headers } from "next/headers";
+import * as Sentry from "@sentry/nextjs";
 /**
  * This context creator accepts `headers` so it can be reused in both
  * the RSC server caller (where you pass `next/headers`) and the
@@ -37,5 +38,14 @@ export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
       message: "unauthorized",
     });
   }
+
+  // Attach the authenticated user to Sentry's request-scoped context.
+  // This is automatically isolated per-request by Sentry's AsyncLocalStorage.
+  Sentry.setUser({
+    id: session.user.id,
+    email: session.user.email,
+    username: session.user.name ?? undefined,
+  });
+
   return next({ ctx: { ...ctx, auth: session } });
 });

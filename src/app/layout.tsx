@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TRPCReactProvider } from "@/trpc/client";
+import { SentryUserSync } from "@/components/custom/SentryUserSync";
 import { Toaster } from "@/components/ui/sonner";
 import { Inter, Source_Serif_4, JetBrains_Mono } from "next/font/google";
 
@@ -36,6 +36,7 @@ export default function RootLayout({
         className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} antialiased`}
       >
         <TRPCReactProvider>
+          <SentryUserSync />
           {children}
           <Toaster />
         </TRPCReactProvider>
