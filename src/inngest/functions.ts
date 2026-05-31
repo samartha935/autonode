@@ -1,9 +1,9 @@
-// src/inngest/functions.ts
 import { db } from "@/db";
 import { inngest } from "./client";
 import { workflow } from "@/db/schema";
-import { getQueryClient } from "@/trpc/server";
 import { eq } from "drizzle-orm";
+import { generateText } from "ai";
+import { google } from "@ai-sdk/google";
 
 export const createWorkflow = inngest.createFunction(
   { id: "create-workflow", triggers: { event: "app/create.workflow" } },
@@ -26,5 +26,17 @@ export const deleteWorkflow = inngest.createFunction(
     });
 
     return { message: `Task ${event.data.id} complete`, result };
+  },
+);
+
+export const AIResponse = inngest.createFunction(
+  { id: "AI-request", triggers: { event: "app/AI.request" } },
+  async ({ event, step }) => {
+    const { text } = await step.ai.wrap("gemini-generate-text", generateText, {
+      model: google("gemini-2.5-flash"),
+      prompt: event.data.prompt,
+    });
+
+    return text;
   },
 );
