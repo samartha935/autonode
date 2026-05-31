@@ -44,3 +44,6 @@ next-env.d.ts
 todo.md
 
 AGENTS.md
+
+# Sentry Config File
+.env.sentry-build-plugin

@@ -35,6 +35,11 @@ export const AIResponse = inngest.createFunction(
     const { text } = await step.ai.wrap("gemini-generate-text", generateText, {
       model: google("gemini-2.5-flash"),
       prompt: event.data.prompt,
+      experimental_telemetry: {
+        isEnabled: true,
+        recordInputs: true,
+        recordOutputs: true,
+      },
     });
 
     return text;
