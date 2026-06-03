@@ -1,10 +1,10 @@
 import SignUpCard from "@/components/custom/auth/SignUpCard";
 import { requireUnAuth } from "@/lib/auth-utils";
 
-const page = async () => {
+const Page = async () => {
   await requireUnAuth();
 
   return <SignUpCard />;
 };
 
-export default page;
+export default Page;

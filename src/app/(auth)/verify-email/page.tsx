@@ -1,7 +1,7 @@
 import VerifyEmailCard from "@/components/custom/auth/VerifyEmailCard";
 import { requireUnAuth } from "@/lib/auth-utils";
 
-const page = async () => {
+const Page = async () => {
   await requireUnAuth();
 
   return (
@@ -11,4 +11,4 @@ const page = async () => {
   );
 };
 
-export default page;
+export default Page;

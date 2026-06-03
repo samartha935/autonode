@@ -1,8 +1,8 @@
 import ForgotPasswordCard from "@/components/custom/auth/ForgotPasswordCard";
 import { requireUnAuth } from "@/lib/auth-utils";
 
-const page = async () => {
- await requireUnAuth()
+const Page = async () => {
+  await requireUnAuth();
 
   return (
     <div>
@@ -11,4 +11,4 @@ const page = async () => {
   );
 };
 
-export default page;
+export default Page;
