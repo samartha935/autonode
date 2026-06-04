@@ -4,6 +4,7 @@ import { TRPCReactProvider } from "@/trpc/client";
 import { SentryUserSync } from "@/components/custom/SentryUserSync";
 import { Toaster } from "@/components/ui/sonner";
 import { Inter, Source_Serif_4, JetBrains_Mono } from "next/font/google";
+import { ThemeProvider } from "@/components/custom/ThemeProvider";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -31,14 +32,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} antialiased`}
       >
         <TRPCReactProvider>
+          <ThemeProvider >
           <SentryUserSync />
           {children}
           <Toaster />
+            </TooltipProvider>
+          </ThemeProvider>
         </TRPCReactProvider>
       </body>
     </html>
