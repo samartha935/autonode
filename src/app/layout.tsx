@@ -4,6 +4,7 @@ import { TRPCReactProvider } from "@/trpc/client";
 import { SentryUserSync } from "@/components/custom/SentryUserSync";
 import { Toaster } from "@/components/ui/sonner";
 import { Inter, Source_Serif_4, JetBrains_Mono } from "next/font/google";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/custom/ThemeProvider";
 
 const fontSans = Inter({
@@ -38,9 +39,10 @@ export default function RootLayout({
       >
         <TRPCReactProvider>
           <ThemeProvider >
-          <SentryUserSync />
-          {children}
-          <Toaster />
+            <SentryUserSync />
+            <TooltipProvider>
+              {children}
+              <Toaster />
             </TooltipProvider>
           </ThemeProvider>
         </TRPCReactProvider>
