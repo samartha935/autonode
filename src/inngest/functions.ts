@@ -9,7 +9,7 @@ export const createWorkflow = inngest.createFunction(
   { id: "create-workflow", triggers: { event: "app/create.workflow" } },
   async ({ event, step }) => {
     const result = await step.run("handle-task", async () => {
-      await db.insert(workflow).values({ name: event.data.name }).returning();
+      // await db.insert(workflow).values({ name: event.data.name }).returning();
     });
 
     await step.sleep("pause", "1s");
