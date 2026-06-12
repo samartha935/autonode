@@ -9,7 +9,7 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { SignUpInput, signUpSchema } from "@/zod-schema/auth-schema";
+import { SignUpInput, signUpSchema } from "@/features/auth/schemas";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";

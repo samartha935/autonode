@@ -1,4 +1,4 @@
-import SignUpCard from "@/components/custom/auth/SignUpCard";
+import SignUpCard from "@/features/auth/components/SignUpCard";
 import { requireUnAuth } from "@/lib/auth-utils";
 
 const Page = async () => {

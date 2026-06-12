@@ -1,4 +1,4 @@
-import ForgotPasswordCard from "@/components/custom/auth/ForgotPasswordCard";
+import ForgotPasswordCard from "@/features/auth/components/ForgotPasswordCard";
 import { requireUnAuth } from "@/lib/auth-utils";
 
 const Page = async () => {

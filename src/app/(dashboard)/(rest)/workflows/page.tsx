@@ -1,7 +1,7 @@
 import {
   WorkflowsList,
   WorkflowsContainer,
-} from "@/components/custom/workflows/workflows";
+} from "@/features/workflows/components/workflows";
 import { prefetchWorkflows } from "@/features/workflows/server/prefetch";
 import { requireAuth } from "@/lib/auth-utils";
 import { HydrateClient } from "@/trpc/server";

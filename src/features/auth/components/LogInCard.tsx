@@ -9,7 +9,7 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { LogInInput, logInSchema } from "@/zod-schema/auth-schema";
+import { LogInInput, logInSchema } from "@/features/auth/schemas";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -17,8 +17,8 @@ import { Separator } from "@/components/ui/separator";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const LogInCard = () => {
   const router = useRouter();
@@ -42,7 +42,6 @@ const LogInCard = () => {
       {
         onSuccess: () => {
           router.push("/");
-          toast.message("Welcome Back!!!");
         },
         onError: (ctx) => {
           toast.error(ctx.error.message);
@@ -52,7 +51,7 @@ const LogInCard = () => {
   };
 
   const OnOAuthSignIn = async () => {
-    const data = await authClient.signIn.social({
+    await authClient.signIn.social({
       provider: "google",
       callbackURL: "/",
     });
@@ -125,7 +124,7 @@ const LogInCard = () => {
                   Submit
                 </Button>
                 <div className="py-1 text-center">
-                  Don't have an account?
+                  Don&apos;t have an account?
                   <Link href={"/sign-up"} className="ml-1 underline">
                     Sign Up
                   </Link>

@@ -1,4 +1,4 @@
-import VerifyEmailCard from "@/components/custom/auth/VerifyEmailCard";
+import VerifyEmailCard from "@/features/auth/components/VerifyEmailCard";
 import { requireUnAuth } from "@/lib/auth-utils";
 
 const Page = async () => {

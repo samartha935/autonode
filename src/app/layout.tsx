@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { TRPCReactProvider } from "@/trpc/client";
-import { SentryUserSync } from "@/components/custom/SentryUserSync";
+import { SentryUserSync } from "@/components/shared/SentryUserSync";
 import { Toaster } from "@/components/ui/sonner";
 import { Inter, Source_Serif_4, JetBrains_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeProvider } from "@/components/custom/ThemeProvider";
+import { ThemeProvider } from "@/components/shared/ThemeProvider";
 
 const fontSans = Inter({
   subsets: ["latin"],

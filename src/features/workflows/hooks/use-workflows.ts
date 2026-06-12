@@ -1,7 +1,3 @@
-/**
- * Hook to fetch all workflows using suspense
- */
-
 import { useTRPC } from "@/trpc/client";
 import {
   useMutation,
@@ -10,6 +6,9 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+/**
+ * Hook to fetch all workflows using suspense
+ */
 export const useSuspenseWorkflows = () => {
   const trpc = useTRPC();
 

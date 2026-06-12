@@ -3,9 +3,9 @@
 import {
   useCreateWorkflow,
   useSuspenseWorkflows,
-} from "@/hooks/custom/useWorkflows";
-import { EntityContainer, EntityHeader } from "../entity-components";
-import useUpgradeModal from "@/hooks/custom/useUpgradeModal";
+} from "@/features/workflows/hooks/use-workflows";
+import { EntityContainer, EntityHeader } from "@/components/shared/entity-components";
+import useUpgradeModal from "@/features/billing/hooks/use-upgrade-modal";
 import { useRouter } from "next/navigation";
 
 export const WorkflowsContainer = ({
@@ -28,7 +28,7 @@ export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
   const createWorkflow = useCreateWorkflow();
   const { handleError, modal } = useUpgradeModal();
   const router = useRouter();
-  
+
   const handleCreate = () => {
     createWorkflow.mutate(undefined, {
       onSuccess: (data) => {
@@ -48,7 +48,7 @@ export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
         newbuttonLabel="New workflow"
         disabled={disabled}
         isCreating={createWorkflow.isPending}
-        />
+      />
     </>
   );
 };
