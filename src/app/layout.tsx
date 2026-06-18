@@ -6,6 +6,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { Inter, Source_Serif_4, JetBrains_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -38,10 +40,11 @@ export default function RootLayout({
         className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} antialiased`}
       >
         <TRPCReactProvider>
-          <ThemeProvider >
+          <ReactQueryDevtools initialIsOpen={false} />
+          <ThemeProvider>
             <SentryUserSync />
             <TooltipProvider>
-              {children}
+              <NuqsAdapter>{children}</NuqsAdapter>
               <Toaster />
             </TooltipProvider>
           </ThemeProvider>
