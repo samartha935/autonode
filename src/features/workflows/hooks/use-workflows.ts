@@ -1,6 +1,8 @@
 import { useTRPC } from "@/trpc/client";
 import {
+  keepPreviousData,
   useMutation,
+  useQuery,
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
@@ -15,6 +17,19 @@ export const useSuspenseWorkflows = () => {
   const [params] = useWorkflowsParams();
 
   return useSuspenseQuery(trpc.workflows.getMany.queryOptions(params));
+};
+
+/**
+ * Hook to fetch all workflows without suspending (for always-visible UI like pagination)
+ */
+export const useWorkflows = () => {
+  const trpc = useTRPC();
+  const [params] = useWorkflowsParams();
+
+  return useQuery({
+    ...trpc.workflows.getMany.queryOptions(params),
+    placeholderData: keepPreviousData,
+  });
 };
 
 /**

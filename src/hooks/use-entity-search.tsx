@@ -1,5 +1,5 @@
 import { PAGINATION } from "@/config/constants";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type UseEntitySearchProps<
   T extends {
@@ -20,19 +20,25 @@ export function UseEntitySearch<T extends { search: string; page: number }>({
   debounceMs = 500,
 }: UseEntitySearchProps<T>) {
   const [localSearch, setLocalSearch] = useState(params.search);
+  // Remember the page the user was on before they started searching
+  const pageBeforeSearch = useRef<number>(params.page);
 
   useEffect(() => {
     if (localSearch === "" && params.search !== "") {
       setParams({
         ...params,
         search: "",
-        page: PAGINATION.DEFAULT_PAGE,
+        page: pageBeforeSearch.current,
       });
       return;
     }
 
     const timer = setTimeout(() => {
       if (localSearch !== params.search) {
+        // Capture current page only when transitioning from no-search to search
+        if (params.search === "" && localSearch !== "") {
+          pageBeforeSearch.current = params.page;
+        }
         setParams({
           ...params,
           search: localSearch,

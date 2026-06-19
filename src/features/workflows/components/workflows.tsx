@@ -3,6 +3,7 @@
 import {
   useCreateWorkflow,
   useSuspenseWorkflows,
+  useWorkflows,
 } from "@/features/workflows/hooks/use-workflows";
 import {
   EntityContainer,
@@ -33,14 +34,14 @@ export const WorkflowsSearch = () => {
 };
 
 export const WorkflowsPagination = () => {
-  const workflows = useSuspenseWorkflows();
+  const workflows = useWorkflows();
   const [params, setParams] = useWorkflowsParams();
 
   return (
     <EntityPagination
       disabled={workflows.isFetching}
-      totalPages={workflows.data.totalPages}
-      page={workflows.data.page}
+      totalPages={workflows.data?.totalPages ?? 1}
+      page={workflows.data?.page ?? 1}
       onPageChange={(page) => setParams({ ...params, page })}
     />
   );
