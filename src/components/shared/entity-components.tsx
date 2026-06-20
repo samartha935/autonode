@@ -181,7 +181,7 @@ export const LoadingView = ({ message }: StateViewProps) => {
   );
 };
 
-export const Errorview = ({ message }: StateViewProps) => {
+export const ErrorView = ({ message }: StateViewProps) => {
   return (
     <div className="flex h-full flex-1 flex-col items-center justify-center gap-y-4">
       <AlertTriangleIcon className="text-primary size-6" />

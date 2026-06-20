@@ -14,7 +14,7 @@ import {
   EntityList,
   EntityPagination,
   EntitySearch,
-  Errorview,
+  ErrorView,
   LoadingView,
 } from "@/components/shared/entity-components";
 import useUpgradeModal from "@/features/billing/hooks/use-upgrade-modal";
@@ -126,7 +126,7 @@ export const WorkflowsLoading = () => {
 };
 
 export const WorkflowsError = () => {
-  return <Errorview message="Error Loading Workflows...." />;
+  return <ErrorView message="Error Loading Workflows...." />;
 };
 
 export const WorkflowsEmpty = () => {

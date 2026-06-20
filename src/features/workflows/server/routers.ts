@@ -6,6 +6,7 @@ import {
   premiumProcedure,
   protectedProcedure,
 } from "@/trpc/init";
+import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, ilike } from "drizzle-orm";
 import { generateSlug } from "random-word-slugs";
 import z from "zod";
@@ -71,7 +72,14 @@ export const workflowsRouter = createTRPCRouter({
           ),
         )
         .limit(1)
-        .then((rows) => rows[0] ?? null);
+        .then((rows) => {
+          if (!rows[0])
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Workflow not found",
+            });
+          return rows[0];
+        });
     }),
 
   getMany: protectedProcedure
