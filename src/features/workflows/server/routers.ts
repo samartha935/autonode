@@ -1,6 +1,6 @@
 import { PAGINATION } from "@/config/constants";
 import { db } from "@/db";
-import { workflow } from "@/db/schema";
+import { node, workflow } from "@/db/schema";
 import {
   createTRPCRouter,
   premiumProcedure,
@@ -10,17 +10,29 @@ import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, ilike } from "drizzle-orm";
 import { generateSlug } from "random-word-slugs";
 import z from "zod";
+import type { Node, Edge } from "@xyflow/react";
 
 export const workflowsRouter = createTRPCRouter({
   create: premiumProcedure.mutation(async ({ ctx }) => {
-    return await db
-      .insert(workflow)
-      .values({
-        name: generateSlug(3),
-        userId: ctx.auth.user.id,
-      })
-      .returning()
-      .then((rows) => rows[0]);
+    return await db.transaction(async (tx) => {
+      const newWorkflow = await tx
+        .insert(workflow)
+        .values({
+          name: generateSlug(3),
+          userId: ctx.auth.user.id,
+        })
+        .returning()
+        .then((rows) => rows[0]);
+
+      await tx.insert(node).values({
+        workflowId: newWorkflow.id,
+        name: "INITIAL",
+        type: "INITIAL",
+        position: { x: 0, y: 0 },
+        data: {},
+      });
+      return newWorkflow;
+    });
   }),
 
   remove: protectedProcedure
@@ -62,24 +74,39 @@ export const workflowsRouter = createTRPCRouter({
   getOne: protectedProcedure
     .input(z.object({ workflowId: z.string() }))
     .query(async ({ ctx, input }) => {
-      return await db
-        .select()
-        .from(workflow)
-        .where(
-          and(
-            eq(workflow.userId, ctx.auth.user.id),
-            eq(workflow.id, input.workflowId),
-          ),
-        )
-        .limit(1)
-        .then((rows) => {
-          if (!rows[0])
-            throw new TRPCError({
-              code: "NOT_FOUND",
-              message: "Workflow not found",
-            });
-          return rows[0];
+      const result = await db.query.workflow.findFirst({
+        where: and(
+          eq(workflow.userId, ctx.auth.user.id),
+          eq(workflow.id, input.workflowId),
+        ),
+        with: {
+          nodes: true,
+          connections: true,
+        },
+      });
+
+      if (!result)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Workflow not found",
         });
+
+      const nodes: Node[] = result.nodes.map((node) => ({
+        id: node.id,
+        type: node.type,
+        position: node.position as { x: number; y: number },
+        data: (node.data as Record<string, unknown>) || {},
+      }));
+
+      const edges: Edge[] = result.connections.map((connection) => ({
+        id: connection.id,
+        source: connection.fromNodeId,
+        target: connection.toNodeId,
+        sourceHandle: connection.fromOutput,
+        targetHandle: connection.toInput,
+      }));
+
+      return { id: result.id, name: result.name, nodes, edges };
     }),
 
   getMany: protectedProcedure
