@@ -28,7 +28,11 @@ export const workflow = pgTable(
   (table) => [index("workflow_userId_idx").on(table.userId)],
 );
 
-export const nodeTypeEnum = pgEnum("node_type", ["INITIAL"]);
+export const nodeTypeEnum = pgEnum("node_type", [
+  "INITIAL",
+  "MANUAL_TRIGGER",
+  "HTTP_REQUEST",
+]);
 
 export const NodeType = Object.fromEntries(
   nodeTypeEnum.enumValues.map((v) => [v, v]),
