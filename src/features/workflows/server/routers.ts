@@ -1,6 +1,6 @@
 import { PAGINATION } from "@/config/constants";
 import { db } from "@/db";
-import { node, workflow } from "@/db/schema";
+import { connection, node, workflow } from "@/db/schema";
 import {
   createTRPCRouter,
   premiumProcedure,
@@ -11,6 +11,16 @@ import { and, count, desc, eq, ilike } from "drizzle-orm";
 import { generateSlug } from "random-word-slugs";
 import z from "zod";
 import type { Node, Edge } from "@xyflow/react";
+import { RegisteredNodeType } from "@/config/node-components";
+
+export async function findOrThrow<T>(
+  query: Promise<T | undefined>,
+  message = "Record not found",
+): Promise<T> {
+  const result = await query;
+  if (!result) throw new TRPCError({ code: "NOT_FOUND", message });
+  return result;
+}
 
 export const workflowsRouter = createTRPCRouter({
   create: premiumProcedure.mutation(async ({ ctx }) => {
@@ -71,25 +81,94 @@ export const workflowsRouter = createTRPCRouter({
         .then((rows) => rows[0]);
     }),
 
+  update: protectedProcedure
+    .input(
+      z.object({
+        workflowId: z.string(),
+        nodes: z.array(
+          z.object({
+            id: z.string(),
+            type: z.string().nullish(),
+            position: z.object({ x: z.number(), y: z.number() }),
+            data: z.record(z.string(), z.any()).optional(),
+          }),
+        ),
+        edges: z.array(
+          z.object({
+            source: z.string(),
+            target: z.string(),
+            sourceHandle: z.string().nullish(),
+            targetHandle: z.string().nullish(),
+          }),
+        ),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { workflowId, nodes, edges } = input;
+
+      await findOrThrow(
+        db.query.workflow.findFirst({
+          where: and(
+            eq(workflow.id, workflowId),
+            eq(workflow.userId, ctx.auth.user.id),
+          ),
+        }),
+      );
+
+      return await db.transaction(async (tx) => {
+        //delete existing nodes and connections (cascade deletes connections)
+        await tx.delete(node).where(eq(node.workflowId, workflowId));
+
+        //create nodes.
+        await tx.insert(node).values(
+          nodes.map((node) => ({
+            id: node.id,
+            workflowId: workflowId,
+            name: node.type ?? "unknown",
+            type: node.type as RegisteredNodeType,
+            position: node.position,
+            data: node.data || {},
+          })),
+        );
+
+        //create connections.
+        await tx.insert(connection).values(
+          edges.map((edge) => ({
+            workflowId: workflowId,
+            fromNodeId: edge.source,
+            toNodeId: edge.target,
+            fromOutput: edge.sourceHandle || "main",
+            toInput: edge.targetHandle || "main",
+          })),
+        );
+
+        //updating the workflow's updateAt timestamp
+        const [updatedWorkflow] = await tx
+          .update(workflow)
+          .set({ updatedAt: new Date() })
+          .where(eq(workflow.id, workflowId))
+          .returning();
+
+        return updatedWorkflow;
+      });
+    }),
+
   getOne: protectedProcedure
     .input(z.object({ workflowId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const result = await db.query.workflow.findFirst({
-        where: and(
-          eq(workflow.userId, ctx.auth.user.id),
-          eq(workflow.id, input.workflowId),
-        ),
-        with: {
-          nodes: true,
-          connections: true,
-        },
-      });
-
-      if (!result)
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Workflow not found",
-        });
+      const result = await findOrThrow(
+        db.query.workflow.findFirst({
+          where: and(
+            eq(workflow.userId, ctx.auth.user.id),
+            eq(workflow.id, input.workflowId),
+          ),
+          with: {
+            nodes: true,
+            connections: true,
+          },
+        }),
+        "Workflow not found",
+      );
 
       const nodes: Node[] = result.nodes.map((node) => ({
         id: node.id,
