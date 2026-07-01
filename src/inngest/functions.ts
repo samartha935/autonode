@@ -1,47 +1,50 @@
-import { db } from "@/db";
+import { NonRetriableError } from "inngest";
 import { inngest } from "./client";
-import { workflow } from "@/db/schema";
+import { db } from "@/db";
 import { eq } from "drizzle-orm";
-import { generateText } from "ai";
-import { google } from "@ai-sdk/google";
+import { workflow } from "@/db/schema";
+import { topologicalSort } from "./utils";
+import { getExecutor } from "@/features/executions/lib/executor-registry";
 
-export const createWorkflow = inngest.createFunction(
-  { id: "create-workflow", triggers: { event: "app/create.workflow" } },
+export const executeWorkflow = inngest.createFunction(
+  { id: "execute-workflow", triggers: { event: "workflows/execute.workflow" } },
   async ({ event, step }) => {
-    const result = await step.run("handle-task", async () => {
-      // await db.insert(workflow).values({ name: event.data.name }).returning();
+    const workflowId = event.data.workflowId;
+
+    if (!workflowId) {
+      throw new NonRetriableError("Workflow ID is missing");
+    }
+
+    const sortedNodes = await step.run("prepare-workflow", async () => {
+      const workflowResult = await db.query.workflow.findFirst({
+        where: eq(workflow.id, workflowId),
+        with: {
+          nodes: true,
+          connections: true,
+        },
+      });
+
+      if (!workflowResult) {
+        throw new NonRetriableError("Workflow not found");
+      }
+
+      return topologicalSort(workflowResult.nodes, workflowResult.connections);
     });
 
-    await step.sleep("pause", "1s");
+    //Initialize the context with any initial data from the trigger
+    let context = event.data.initialData || {};
 
-    return { message: `Task ${event.data.id} complete`, result };
-  },
-);
+    //Execute each node
+    for (const node of sortedNodes) {
+      const executor = getExecutor(node.type);
+      context = await executor({
+        data: node.data as Record<string, unknown>,
+        nodeId: node.id,
+        context,
+        step,
+      });
+    }
 
-export const deleteWorkflow = inngest.createFunction(
-  { id: "delete-workflow", triggers: { event: "app/delete.workflow" } },
-  async ({ event, step }) => {
-    const result = await step.run("handle-task", async () => {
-      await db.delete(workflow).where(eq(workflow.id, event.data.id));
-    });
-
-    return { message: `Task ${event.data.id} complete`, result };
-  },
-);
-
-export const AIResponse = inngest.createFunction(
-  { id: "AI-request", triggers: { event: "app/AI.request" } },
-  async ({ event, step }) => {
-    const { text } = await step.ai.wrap("gemini-generate-text", generateText, {
-      model: google("gemini-2.5-flash"),
-      prompt: event.data.prompt,
-      experimental_telemetry: {
-        isEnabled: true,
-        recordInputs: true,
-        recordOutputs: true,
-      },
-    });
-
-    return text;
+    return { workflowId, result: context };
   },
 );

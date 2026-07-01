@@ -12,6 +12,7 @@ import { generateSlug } from "random-word-slugs";
 import z from "zod";
 import type { Node, Edge } from "@xyflow/react";
 import { RegisteredNodeType } from "@/config/node-components";
+import { inngest } from "@/inngest/client";
 
 export async function findOrThrow<T>(
   query: Promise<T | undefined>,
@@ -23,6 +24,33 @@ export async function findOrThrow<T>(
 }
 
 export const workflowsRouter = createTRPCRouter({
+  execute: protectedProcedure
+    .input(
+      z.object({
+        workflowId: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const workflowResult = await findOrThrow(
+        db.query.workflow.findFirst({
+          where: and(
+            eq(workflow.id, input.workflowId),
+            eq(workflow.userId, ctx.auth.user.id),
+          ),
+        }),
+      );
+
+      await inngest.send({
+        name: "workflows/execute.workflow",
+        data: {
+          workflowId: input.workflowId,
+        },
+      });
+
+      
+      return workflowResult;
+    }),
+
   create: premiumProcedure.mutation(async ({ ctx }) => {
     return await db.transaction(async (tx) => {
       const newWorkflow = await tx

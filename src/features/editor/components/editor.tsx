@@ -2,7 +2,7 @@
 
 import { ErrorView, LoadingView } from "@/components/shared/entity-components";
 import { useSuspenseWorkflow } from "@/features/workflows/hooks/use-workflows";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   ReactFlow,
   applyNodeChanges,
@@ -20,6 +20,8 @@ import "@xyflow/react/dist/style.css";
 import { nodeComponents } from "@/config/node-components";
 import { AddNodeButton } from "./add-node-button";
 import { useEditorStore } from "../store/atom";
+import { NodeType } from "@/db/schema";
+import { ExecuteWorkflowButton } from "./execute-workflow-button";
 
 export const EditorLoading = () => {
   return <LoadingView message="Loading Editor..." />;
@@ -55,6 +57,10 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
     [],
   );
 
+  const hasManualTrigger = useMemo(() => {
+    return nodes.some((node) => node.type === NodeType.MANUAL_TRIGGER);
+  }, [nodes]);
+
   return (
     <div className="size-full">
       <ReactFlow
@@ -67,7 +73,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         fitView
         nodeTypes={nodeComponents}
         proOptions={{ hideAttribution: true }}
-        snapGrid={[10,10]}
+        snapGrid={[10, 10]}
         snapToGrid
       >
         <Background />
@@ -75,6 +81,9 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         <MiniMap />
         <Panel position="top-right">
           <AddNodeButton />
+        </Panel>
+        <Panel position="bottom-center">
+          <ExecuteWorkflowButton workflowId={workflowId} />
         </Panel>
       </ReactFlow>
     </div>

@@ -31,6 +31,7 @@
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
     "inngest": "4.0.0-beta.4",
+    "ky": "^2.0.2",
     "lucide-react": "^0.575.0",
     "next": "16.1.6",
     "next-themes": "^0.4.6",
@@ -47,6 +48,7 @@
     "sonner": "^2.0.7",
     "superjson": "^2.2.6",
     "tailwind-merge": "^3.5.0",
+    "toposort": "^2.0.2",
     "zod": "^4.3.6",
     "zustand": "^5.0.14"
   },
@@ -58,6 +60,7 @@
     "@types/pg": "^8.16.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/toposort": "^2.0.7",
     "drizzle-kit": "^0.31.9",
     "eslint": "^10.0.1",
     "eslint-config-next": "^16.1.6",
