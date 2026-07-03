@@ -7,7 +7,11 @@ import { topologicalSort } from "./utils";
 import { getExecutor } from "@/features/executions/lib/executor-registry";
 
 export const executeWorkflow = inngest.createFunction(
-  { id: "execute-workflow", triggers: { event: "workflows/execute.workflow" } },
+  {
+    id: "execute-workflow",
+    retries: 0,
+    triggers: { event: "workflows/execute.workflow" },
+  },
   async ({ event, step }) => {
     const workflowId = event.data.workflowId;
 

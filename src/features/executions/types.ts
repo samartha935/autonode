@@ -9,7 +9,6 @@ export type NodeExecutorParams<TData = Record<string, unknown>> = {
   nodeId: string;
   context: WorkflowContext;
   step: StepTools;
-  //publish: TODO Add realitime later
 };
 
 export type NodeExecutor<TData = Record<string, unknown>> = (
