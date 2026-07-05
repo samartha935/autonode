@@ -12,7 +12,7 @@ import { generateSlug } from "random-word-slugs";
 import z from "zod";
 import type { Node, Edge } from "@xyflow/react";
 import { RegisteredNodeType } from "@/config/node-components";
-import { inngest } from "@/inngest/client";
+import { sendWorkflowExecution } from "@/inngest/utils";
 
 export async function findOrThrow<T>(
   query: Promise<T | undefined>,
@@ -40,14 +40,8 @@ export const workflowsRouter = createTRPCRouter({
         }),
       );
 
-      await inngest.send({
-        name: "workflows/execute.workflow",
-        data: {
-          workflowId: input.workflowId,
-        },
-      });
+      await sendWorkflowExecution({ workflowId: input.workflowId });
 
-      
       return workflowResult;
     }),
 
@@ -57,6 +51,7 @@ export const workflowsRouter = createTRPCRouter({
         .insert(workflow)
         .values({
           name: generateSlug(3),
+          webhookSecret: crypto.randomUUID(),
           userId: ctx.auth.user.id,
         })
         .returning()
@@ -213,7 +208,13 @@ export const workflowsRouter = createTRPCRouter({
         targetHandle: connection.toInput,
       }));
 
-      return { id: result.id, name: result.name, nodes, edges };
+      return {
+        id: result.id,
+        name: result.name,
+        webhookSecret: result.webhookSecret,
+        nodes,
+        edges,
+      };
     }),
 
   getMany: protectedProcedure

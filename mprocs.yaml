@@ -7,3 +7,6 @@ procs:
 
   drizzle:
     cmd: ["pnpm", "drizzle-kit", "studio"]
+
+  ngrok:
+    cmd: ["ngrok http --url=seducing-cod-unguarded.ngrok-free.dev 3000"]

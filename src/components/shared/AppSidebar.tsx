@@ -61,7 +61,7 @@ export function AppSidebar() {
             <SidebarMenuButton asChild className="h-10 gap-x-4 px-4">
               <Link href={"/workflows"} prefetch>
                 <Image
-                  src={"/logo.svg"}
+                  src={"/logos/logo.svg"}
                   alt="AutoNode"
                   width={30}
                   height={30}

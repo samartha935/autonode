@@ -1,6 +1,7 @@
 import toposort from "toposort";
 import type { InferSelectModel } from "drizzle-orm";
 import { node, connection } from "@/db/schema/index";
+import { inngest } from "./client";
 
 type Node = InferSelectModel<typeof node>;
 
@@ -12,6 +13,7 @@ export const topologicalSort = (
 ): Node[] => {
   //If no connections, return node as-is (they're all independet)
   if (connections.length === 0) {
+    // return []; // nothing connected = nothing to execute
     return nodes;
   }
 
@@ -50,4 +52,17 @@ export const topologicalSort = (
   //Map sorted IDs back to node objects
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
   return sortedNodeIds.map((id) => nodeMap.get(id)!).filter(Boolean);
+};
+
+export const sendWorkflowExecution = async (data: {
+  workflowId: string;
+  [key: string]: any;
+}) => {
+  return await inngest.send({
+    name: "workflows/execute.workflow",
+    data: {
+      workflowId: data.workflowId,
+      initialData: data.initialData,
+    },
+  });
 };

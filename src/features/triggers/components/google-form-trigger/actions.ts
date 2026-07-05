@@ -2,11 +2,11 @@
 
 import { getClientSubscriptionToken } from "inngest/react";
 import { inngest } from "@/inngest/client";
-import { httpRequestChannel } from "@/inngest/channels/http-request";
+import { googleFormTriggerChannel } from "@/inngest/channels/google-form-trigger";
 
-export async function getHttpRequestRealtimeToken() {
+export async function getGoogleFormTriggerRealtimeToken() {
   return getClientSubscriptionToken(inngest, {
-    channel: httpRequestChannel,
+    channel: googleFormTriggerChannel,
     topics: ["status"],
   });
 }

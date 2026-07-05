@@ -7,7 +7,7 @@ import { GlobeIcon } from "lucide-react";
 import { type HttpRequestFormValues, HttpRequestDialog } from "./dialog";
 import { useNodeStatus } from "../../hooks/use-node-status";
 import { httpRequestChannel } from "@/inngest/channels/http-request";
-import { getNodeStatusToken } from "./actions";
+import { getHttpRequestRealtimeToken } from "./actions";
 
 type HttpRequestNodeData = {
   variableName?: string;
@@ -26,7 +26,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
   const nodeStatus = useNodeStatus({
     nodeId: props.id,
     channel: httpRequestChannel,
-    token: getNodeStatusToken,
+    token: getHttpRequestRealtimeToken,
   });
 
   const handleOpenSetting = () => setDialogOpen(true);

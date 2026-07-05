@@ -30,10 +30,14 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
   context,
   step,
 }) => {
-  await step.realtime.publish("status-loading", httpRequestChannel.status, {
-    nodeId,
-    status: "loading",
-  });
+  await step.realtime.publish(
+    `${nodeId}-status-loading`,
+    httpRequestChannel.status,
+    {
+      nodeId,
+      status: "loading",
+    },
+  );
 
   try {
     if (!data.endpoint) {
@@ -50,14 +54,18 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
       throw new NonRetriableError("HTTP Request node: Method not configured.");
     }
   } catch (error) {
-    await step.realtime.publish("status-error", httpRequestChannel.status, {
-      nodeId,
-      status: "error",
-    });
+    await step.realtime.publish(
+      `${nodeId}-status-error`,
+      httpRequestChannel.status,
+      {
+        nodeId,
+        status: "error",
+      },
+    );
   }
 
   try {
-    const result = await step.run("http-request", async () => {
+    const result = await step.run(`${nodeId}-http-request`, async () => {
       let endpoint: string;
       try {
         const template = Handlebars.compile(data.endpoint);
@@ -106,17 +114,25 @@ export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
       };
     });
 
-    await step.realtime.publish("status-success", httpRequestChannel.status, {
-      nodeId,
-      status: "success",
-    });
+    await step.realtime.publish(
+      `${nodeId}-status-success`,
+      httpRequestChannel.status,
+      {
+        nodeId,
+        status: "success",
+      },
+    );
 
     return result;
   } catch (error) {
-    await step.realtime.publish("status-error", httpRequestChannel.status, {
-      nodeId,
-      status: "error",
-    });
+    await step.realtime.publish(
+      `${nodeId}-status-error`,
+      httpRequestChannel.status,
+      {
+        nodeId,
+        status: "error",
+      },
+    );
     throw error;
   }
 };

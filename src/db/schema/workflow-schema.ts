@@ -16,6 +16,7 @@ export const workflow = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     name: text("name").notNull(),
+    webhookSecret: text("webhook_secret").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -32,6 +33,7 @@ export const nodeTypeEnum = pgEnum("node_type", [
   "INITIAL",
   "MANUAL_TRIGGER",
   "HTTP_REQUEST",
+  "GOOGLE_FORM_TRIGGER",
 ]);
 
 export const NodeType = Object.fromEntries(

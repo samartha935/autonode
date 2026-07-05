@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "ngrok:dev": "ngrok http --url=seducing-cod-unguarded.ngrok-free.dev 3000",
     "dev:all": "mprocs"
   },
   "dependencies": {
