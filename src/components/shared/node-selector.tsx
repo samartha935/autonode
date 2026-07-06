@@ -42,6 +42,12 @@ const triggerNodes: NodeTypeOption[] = [
     description: "Runs the flow when a Stripe Event is captured",
     icon: "/logos/stripe.svg",
   },
+  {
+    type: NodeType.POLAR_TRIGGER,
+    label: "Polar Event",
+    description: "Runs the flow when a Polar Event is captured",
+    icon: "/logos/polar.svg",
+  },
 ];
 
 const executionNodes: NodeTypeOption[] = [
