@@ -36,6 +36,9 @@ export const nodeTypeEnum = pgEnum("node_type", [
   "GOOGLE_FORM_TRIGGER",
   "STRIPE_TRIGGER",
   "POLAR_TRIGGER",
+  "ANTHROPIC",
+  "GEMINI",
+  "OPENAI",
 ]);
 
 export const NodeType = Object.fromEntries(
