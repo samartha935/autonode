@@ -11,6 +11,7 @@ import { anthropicChannel } from "@/inngest/channels/anthropic";
 
 type AnthropicNodeData = {
   variableName?: string;
+  credentialId?: string;
   model?: AnthropicModel;
   systemPrompt?: string;
   userPrompt?: string;

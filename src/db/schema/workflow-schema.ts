@@ -9,7 +9,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth-schema";
-import { relations } from "drizzle-orm";
+import { credential } from "./credential-schema";
 
 export const workflow = pgTable(
   "workflow",
@@ -54,6 +54,9 @@ export const node = pgTable("node", {
   type: nodeTypeEnum("type").notNull(),
   position: jsonb("position").notNull(),
   data: jsonb("data").notNull().default({}),
+  credentialId: uuid("credential_id").references(() => credential.id, {
+    onDelete: "set null",
+  }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -86,22 +89,3 @@ export const connection = pgTable(
     unique("uq_connection_from_output").on(table.fromNodeId, table.fromOutput),
   ],
 );
-
-export const workflowRelations = relations(workflow, ({ many }) => ({
-  nodes: many(node),
-  connections: many(connection),
-}));
-
-export const nodeRelations = relations(node, ({ one }) => ({
-  workflow: one(workflow, {
-    fields: [node.workflowId],
-    references: [workflow.id],
-  }),
-}));
-
-export const connectionRelations = relations(connection, ({ one }) => ({
-  workflow: one(workflow, {
-    fields: [connection.workflowId],
-    references: [workflow.id],
-  }),
-}));

@@ -40,7 +40,10 @@ export const workflowsRouter = createTRPCRouter({
         }),
       );
 
-      await sendWorkflowExecution({ workflowId: input.workflowId });
+      await sendWorkflowExecution({
+        workflowId: input.workflowId,
+        userId: ctx.auth.user.id,
+      });
 
       return workflowResult;
     }),

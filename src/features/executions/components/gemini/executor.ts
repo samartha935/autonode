@@ -5,6 +5,10 @@ import { geminiChannel } from "@/inngest/channels/gemini";
 import { GOOGLE_MODELS, type GoogleModel } from "@/config/ai-models";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText } from "ai";
+import { db } from "@/db";
+import { credential } from "@/db/schema/credential-schema";
+import { and, eq } from "drizzle-orm";
+import { findOrThrow } from "@/features/workflows/server/routers";
 
 Handlebars.registerHelper("json", (value) => {
   try {
@@ -21,6 +25,7 @@ Handlebars.registerHelper("json", (value) => {
 
 type GeminiData = {
   variableName: string;
+  credentialId: string;
   model: GoogleModel;
   systemPrompt: string;
   userPrompt: string;
@@ -31,6 +36,7 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
   nodeId,
   context,
   step,
+  userId,
 }) => {
   await step.realtime.publish(
     `${nodeId}-status-loading`,
@@ -67,16 +73,53 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
     throw new NonRetriableError("Gemini node: User prompt is missing.");
   }
 
+  if (!data.credentialId) {
+    await step.realtime.publish(
+      `${nodeId}-status-error`,
+      geminiChannel.status,
+      {
+        nodeId,
+        status: "error",
+      },
+    );
+
+    throw new NonRetriableError("Gemini node: Credential is required.");
+  }
+
   const systemPrompt = data.systemPrompt
     ? Handlebars.compile(data.systemPrompt)(context)
     : "You are a helpful assistant.";
 
   const userPrompt = Handlebars.compile(data.userPrompt)(context);
 
-  const credentialValue = process.env.GOOGLE_GENERATIVE_AI_API_KEY!;
+  const credentialKey = await step.run("get-credential", async () => {
+    const credentialResult = await findOrThrow(
+      db.query.credential.findFirst({
+        where: and(
+          eq(credential.id, data.credentialId),
+          eq(credential.userId, userId),
+        ),
+      }),
+    );
+
+    return credentialResult;
+  });
+
+  if (!credentialKey) {
+    await step.realtime.publish(
+      `${nodeId}-status-error`,
+      geminiChannel.status,
+      {
+        nodeId,
+        status: "error",
+      },
+    );
+
+    throw new NonRetriableError("Gemini node: Credential not found");
+  }
 
   const google = createGoogleGenerativeAI({
-    apiKey: credentialValue,
+    apiKey: credentialKey.value,
   });
 
   try {
