@@ -9,6 +9,7 @@ import { polarTriggerExecutor } from "@/features/triggers/components/polar-trigg
 import { geminiExecutor } from "../components/gemini/executor";
 import { openAiExecutor } from "../components/openai/executor";
 import { AnthropicExecutor } from "../components/anthropic/executor";
+import { discordExecutor } from "../components/discord/executor";
 
 export const executorRegistry: Record<RegisteredNodeType, NodeExecutor<any>> = {
   [NodeType.MANUAL_TRIGGER]: manualTriggerExecutor,
@@ -20,6 +21,7 @@ export const executorRegistry: Record<RegisteredNodeType, NodeExecutor<any>> = {
   [NodeType.GEMINI]: geminiExecutor,
   [NodeType.ANTHROPIC]: AnthropicExecutor,
   [NodeType.OPENAI]: openAiExecutor,
+  [NodeType.DISCORD]: discordExecutor,
 };
 
 export const getExecutor = (type: RegisteredNodeType): NodeExecutor => {

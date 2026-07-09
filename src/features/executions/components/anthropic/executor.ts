@@ -1,6 +1,6 @@
 import { NodeExecutor } from "@/features/executions/types";
 import { NonRetriableError } from "inngest";
-import Handlebars from "handlebars";
+import Handlebars from "@/features/executions/lib/handlebars-helpers";
 import { ANTHROPIC_MODELS, type AnthropicModel } from "@/config/ai-models";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { generateText } from "ai";
@@ -9,19 +9,6 @@ import { findOrThrow } from "@/features/credentials/server/routers";
 import { db } from "@/db";
 import { and, eq } from "drizzle-orm";
 import { credential } from "@/db/schema";
-
-Handlebars.registerHelper("json", (value) => {
-  try {
-    const jsonString = JSON.stringify(value, null, 2);
-    const safeString = new Handlebars.SafeString(jsonString);
-
-    return safeString;
-  } catch (error) {
-    throw new Error(
-      `Failed to serialize context to JSON: ${error instanceof Error ? error.message : String(error)}`,
-    );
-  }
-});
 
 type AnthropicData = {
   variableName: string;

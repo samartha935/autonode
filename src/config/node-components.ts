@@ -1,6 +1,7 @@
 import { InitialNode } from "@/components/shared/initial-node";
 import { NodeType } from "@/db/schema/workflow-schema";
 import { AnthropicNode } from "@/features/executions/components/anthropic/node";
+import { DiscordNode } from "@/features/executions/components/discord/node";
 import { GeminiNode } from "@/features/executions/components/gemini/node";
 import { HttpRequestNode } from "@/features/executions/components/http-request/node";
 import { OpenAiNode } from "@/features/executions/components/openai/node";
@@ -20,6 +21,7 @@ export const nodeComponents = {
   [NodeType.GEMINI]: GeminiNode,
   [NodeType.ANTHROPIC]: AnthropicNode,
   [NodeType.OPENAI]: OpenAiNode,
+  [NodeType.DISCORD]: DiscordNode,
 } as const satisfies NodeTypes;
 
 export type RegisteredNodeType = keyof typeof nodeComponents;

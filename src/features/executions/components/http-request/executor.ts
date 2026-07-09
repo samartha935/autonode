@@ -1,21 +1,8 @@
 import { NodeExecutor } from "@/features/executions/types";
 import { NonRetriableError } from "inngest";
 import ky, { type Options as KyOptions } from "ky";
-import Handlebars from "handlebars";
+import Handlebars from "@/features/executions/lib/handlebars-helpers";
 import { httpRequestChannel } from "@/inngest/channels/http-request";
-
-Handlebars.registerHelper("json", (value) => {
-  try {
-    const jsonString = JSON.stringify(value, null, 2);
-    const safeString = new Handlebars.SafeString(jsonString);
-
-    return safeString;
-  } catch (error) {
-    throw new Error(
-      `Failed to serialize context to JSON: ${error instanceof Error ? error.message : String(error)}`,
-    );
-  }
-});
 
 type HttpRequestData = {
   variableName: string;

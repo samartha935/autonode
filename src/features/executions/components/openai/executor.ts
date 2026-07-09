@@ -1,6 +1,6 @@
 import { NodeExecutor } from "@/features/executions/types";
 import { NonRetriableError } from "inngest";
-import Handlebars from "handlebars";
+import Handlebars from "@/features/executions/lib/handlebars-helpers";
 import { openAiChannel } from "@/inngest/channels/openai";
 import { OPENAI_MODELS, type OpenAIModel } from "@/config/ai-models";
 import { createOpenAI } from "@ai-sdk/openai";
@@ -9,19 +9,6 @@ import { findOrThrow } from "@/features/credentials/server/routers";
 import { credential } from "@/db/schema";
 import { db } from "@/db";
 import { and, eq } from "drizzle-orm";
-
-Handlebars.registerHelper("json", (value) => {
-  try {
-    const jsonString = JSON.stringify(value, null, 2);
-    const safeString = new Handlebars.SafeString(jsonString);
-
-    return safeString;
-  } catch (error) {
-    throw new Error(
-      `Failed to serialize context to JSON: ${error instanceof Error ? error.message : String(error)}`,
-    );
-  }
-});
 
 type OpenAiData = {
   variableName: string;

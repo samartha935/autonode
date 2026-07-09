@@ -1,6 +1,6 @@
 import { NodeExecutor } from "@/features/executions/types";
 import { NonRetriableError } from "inngest";
-import Handlebars from "handlebars";
+import Handlebars from "@/features/executions/lib/handlebars-helpers";
 import { geminiChannel } from "@/inngest/channels/gemini";
 import { GOOGLE_MODELS, type GoogleModel } from "@/config/ai-models";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
@@ -9,19 +9,6 @@ import { db } from "@/db";
 import { credential } from "@/db/schema/credential-schema";
 import { and, eq } from "drizzle-orm";
 import { findOrThrow } from "@/features/workflows/server/routers";
-
-Handlebars.registerHelper("json", (value) => {
-  try {
-    const jsonString = JSON.stringify(value, null, 2);
-    const safeString = new Handlebars.SafeString(jsonString);
-
-    return safeString;
-  } catch (error) {
-    throw new Error(
-      `Failed to serialize context to JSON: ${error instanceof Error ? error.message : String(error)}`,
-    );
-  }
-});
 
 type GeminiData = {
   variableName: string;
