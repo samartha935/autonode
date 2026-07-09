@@ -10,6 +10,7 @@ import { geminiExecutor } from "../components/gemini/executor";
 import { openAiExecutor } from "../components/openai/executor";
 import { AnthropicExecutor } from "../components/anthropic/executor";
 import { discordExecutor } from "../components/discord/executor";
+import { telegramExecutor } from "../components/telegram/executor";
 
 export const executorRegistry: Record<RegisteredNodeType, NodeExecutor<any>> = {
   [NodeType.MANUAL_TRIGGER]: manualTriggerExecutor,
@@ -22,6 +23,7 @@ export const executorRegistry: Record<RegisteredNodeType, NodeExecutor<any>> = {
   [NodeType.ANTHROPIC]: AnthropicExecutor,
   [NodeType.OPENAI]: openAiExecutor,
   [NodeType.DISCORD]: discordExecutor,
+  [NodeType.TELEGRAM]: telegramExecutor,
 };
 
 export const getExecutor = (type: RegisteredNodeType): NodeExecutor => {
