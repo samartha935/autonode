@@ -26,7 +26,7 @@ const markExecutionFailed = async (
 export const executeWorkflow = inngest.createFunction(
   {
     id: "execute-workflow",
-    retries: 0,
+    retries: process.env.NODE_ENV === "production" ? 3 : 0,
     triggers: { event: "workflows/execute.workflow" },
     onFailure: async ({ event, error }) => {
       const originalEvent = event.data.event;

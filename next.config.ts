@@ -3,6 +3,16 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/workflows",
+        permanent: false, // true = 308, false = 307
+      },
+    ];
+  },
 };
 
 export default withSentryConfig(nextConfig, {
