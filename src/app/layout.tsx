@@ -41,13 +41,13 @@ export default function RootLayout({
       >
         <TRPCReactProvider>
           <ReactQueryDevtools initialIsOpen={false} />
-          <ThemeProvider>
-            <SentryUserSync />
-            <TooltipProvider>
-              <NuqsAdapter>{children}</NuqsAdapter>
-              <Toaster />
-            </TooltipProvider>
-          </ThemeProvider>
+          {/* <ThemeProvider> */}
+          <SentryUserSync />
+          <TooltipProvider>
+            <NuqsAdapter>{children}</NuqsAdapter>
+            <Toaster />
+          </TooltipProvider>
+          {/* </ThemeProvider> */}
         </TRPCReactProvider>
       </body>
     </html>

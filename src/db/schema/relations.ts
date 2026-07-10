@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import { account, session, user } from "./auth-schema";
 import { credential } from "./credential-schema";
 import { node, workflow, connection } from "./workflow-schema";
+import { execution } from "./execution-schema";
 
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
@@ -26,6 +27,7 @@ export const accountRelations = relations(account, ({ one }) => ({
 export const workflowRelations = relations(workflow, ({ many }) => ({
   nodes: many(node),
   connections: many(connection),
+  executions: many(execution),
 }));
 
 export const nodeRelations = relations(node, ({ one }) => ({
@@ -52,4 +54,11 @@ export const credentialRelations = relations(credential, ({ one, many }) => ({
     references: [user.id],
   }),
   nodes: many(node),
+}));
+
+export const executionRelations = relations(execution, ({ one }) => ({
+  workflow: one(workflow, {
+    fields: [execution.workflowId],
+    references: [workflow.id],
+  }),
 }));

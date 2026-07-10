@@ -2,19 +2,42 @@ import { NonRetriableError } from "inngest";
 import { inngest } from "./client";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
-import { workflow } from "@/db/schema";
+import { execution, workflow } from "@/db/schema";
 import { topologicalSort } from "./utils";
 import { getExecutor } from "@/features/executions/lib/executor-registry";
+
+const markExecutionFailed = async (
+  executionId: string | undefined,
+  error: Error,
+) => {
+  if (!executionId) return;
+
+  await db
+    .update(execution)
+    .set({
+      status: "FAILED",
+      error: error.message || "Unknown error",
+      errorStack: error.stack ?? null,
+      completedAt: new Date(),
+    })
+    .where(eq(execution.id, executionId));
+};
 
 export const executeWorkflow = inngest.createFunction(
   {
     id: "execute-workflow",
     retries: 0,
     triggers: { event: "workflows/execute.workflow" },
+    onFailure: async ({ event, error }) => {
+      const originalEvent = event.data.event;
+      const executionId = originalEvent.data?.executionId as string | undefined;
+      await markExecutionFailed(executionId, error);
+    },
   },
   async ({ event, step }) => {
-    const workflowId = event.data.workflowId;
-    const userId = event.data.userId;
+    const workflowId = event.data.workflowId as string | undefined;
+    const userId = event.data.userId as string | undefined;
+    const executionId = event.data.executionId as string | undefined;
 
     if (!workflowId) {
       throw new NonRetriableError("Workflow ID is missing");
@@ -40,8 +63,7 @@ export const executeWorkflow = inngest.createFunction(
       return topologicalSort(workflowResult.nodes, workflowResult.connections);
     });
 
-    //Initialize the context with any initial data from the trigger
-    let context = event.data.initialData || {};
+    let context = (event.data.initialData as Record<string, unknown>) || {};
 
     //Execute each node
     for (const node of sortedNodes) {
@@ -51,7 +73,22 @@ export const executeWorkflow = inngest.createFunction(
         nodeId: node.id,
         context,
         step,
-        userId
+        userId,
+      });
+    }
+
+    if (executionId) {
+      await step.run("mark-execution-success", async () => {
+        await db
+          .update(execution)
+          .set({
+            status: "SUCCESS",
+            output: context,
+            completedAt: new Date(),
+            error: null,
+            errorStack: null,
+          })
+          .where(eq(execution.id, executionId));
       });
     }
 

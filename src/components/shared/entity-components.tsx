@@ -31,13 +31,13 @@ import {
 type EntityHeaderProps = {
   title: string;
   description?: string;
-  newbuttonLabel: string;
+  newbuttonLabel?: string;
   disabled?: boolean;
   isCreating?: boolean;
 } & (
-  | { onNew: () => void; newButtonHref?: never }
-  | { newButtonHref: string; onNew?: never }
-  | { onNew?: never; newButtonHref?: never }
+  | { onNew: () => void; newButtonHref?: never; newbuttonLabel: string }
+  | { newButtonHref: string; onNew?: never; newbuttonLabel: string }
+  | { onNew?: never; newButtonHref?: never; newbuttonLabel?: string }
 );
 
 type EntityContainerProps = {
