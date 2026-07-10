@@ -9,6 +9,7 @@ import { findOrThrow } from "@/features/credentials/server/routers";
 import { credential } from "@/db/schema";
 import { db } from "@/db";
 import { and, eq } from "drizzle-orm";
+import { decrypt } from "@/lib/encryption";
 
 type OpenAiData = {
   variableName: string;
@@ -106,7 +107,7 @@ export const openAiExecutor: NodeExecutor<OpenAiData> = async ({
   }
 
   const openai = createOpenAI({
-    apiKey: credentialKey.value,
+    apiKey: decrypt(credentialKey.value),
   });
 
   try {

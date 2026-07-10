@@ -9,6 +9,7 @@ import { findOrThrow } from "@/features/credentials/server/routers";
 import { db } from "@/db";
 import { and, eq } from "drizzle-orm";
 import { credential } from "@/db/schema";
+import { decrypt } from "@/lib/encryption";
 
 type AnthropicData = {
   variableName: string;
@@ -106,7 +107,7 @@ export const AnthropicExecutor: NodeExecutor<AnthropicData> = async ({
   }
 
   const Anthropic = createAnthropic({
-    apiKey: credentialKey.value,
+    apiKey: decrypt(credentialKey.value),
   });
 
   try {

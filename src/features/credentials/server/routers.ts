@@ -1,6 +1,7 @@
 import { PAGINATION } from "@/config/constants";
 import { db } from "@/db";
 import { credential, CredentialType } from "@/db/schema";
+import { encrypt } from "@/lib/encryption";
 import {
   createTRPCRouter,
   premiumProcedure,
@@ -35,7 +36,7 @@ export const credentialsRouter = createTRPCRouter({
         .insert(credential)
         .values({
           name,
-          value,
+          value: encrypt(value),
           type,
           userId: ctx.auth.user.id,
         })
@@ -73,7 +74,7 @@ export const credentialsRouter = createTRPCRouter({
       return await findOrThrow(
         db
           .update(credential)
-          .set({ name, type, value })
+          .set({ name, type, value: encrypt(value) })
           .where(
             and(
               eq(credential.userId, ctx.auth.user.id),

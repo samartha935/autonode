@@ -9,6 +9,7 @@ import { db } from "@/db";
 import { credential } from "@/db/schema/credential-schema";
 import { and, eq } from "drizzle-orm";
 import { findOrThrow } from "@/features/workflows/server/routers";
+import { decrypt } from "@/lib/encryption";
 
 type GeminiData = {
   variableName: string;
@@ -106,7 +107,7 @@ export const geminiExecutor: NodeExecutor<GeminiData> = async ({
   }
 
   const google = createGoogleGenerativeAI({
-    apiKey: credentialKey.value,
+    apiKey: decrypt(credentialKey.value),
   });
 
   try {
