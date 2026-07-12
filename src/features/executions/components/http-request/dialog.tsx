@@ -1,14 +1,18 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  NodeConfigDialog,
+  NodeConfigDialogBody,
+  NodeConfigDialogFooter,
+  NodeConfigDialogForm,
+} from "@/components/shared/node-config-dialog";
+import {
+  NodeSetupGuide,
+  SetupCode,
+  SetupEm,
+  SetupSteps,
+} from "@/components/shared/node-setup-guide";
+import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldDescription,
@@ -90,18 +94,14 @@ export const HttpRequestDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>HTTP Request</DialogTitle>
-          <DialogDescription>
-            Configure settings for the HTTP Request node.
-          </DialogDescription>
-        </DialogHeader>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="mt-4 space-y-8"
-        >
+    <NodeConfigDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="HTTP Request"
+      description="Call any HTTP API. Choose a method and URL; optionally send a JSON body. Use the response in later nodes via the variable name."
+    >
+      <NodeConfigDialogForm onSubmit={form.handleSubmit(handleSubmit)}>
+        <NodeConfigDialogBody>
           <FieldSet>
             <FieldGroup>
               <Controller
@@ -144,7 +144,8 @@ export const HttpRequestDialog = ({
                       </SelectContent>
                     </Select>
                     <FieldDescription>
-                      The HTTP method to use for this request
+                      GET to read data; POST/PUT/PATCH to send a body; DELETE to
+                      remove a resource. Match what the API documents.
                     </FieldDescription>
                     {fieldState.error && (
                       <FieldError errors={[fieldState.error]} />
@@ -164,8 +165,8 @@ export const HttpRequestDialog = ({
                       {...field}
                     />
                     <FieldDescription>
-                      Static URL or use {"{{variables}}"} for simple values or{" "}
-                      {"{{json variable}}"} to stringify objects
+                      Full URL including <SetupCode>https://</SetupCode>. You
+                      can embed {"{{variables}}"} in the path or query string.
                     </FieldDescription>
                     {fieldState.error && (
                       <FieldError errors={[fieldState.error]} />
@@ -182,14 +183,14 @@ export const HttpRequestDialog = ({
                     <Field>
                       <FieldLabel>Request Body</FieldLabel>
                       <Textarea
-                        placeholder={`{\n "userId":"{{httpResponse.data.id}}",\n "name":"{{httpResponse.data.name}}",\n "items":{{httpResponse.data.items}}"\n}`}
+                        placeholder={`{\n  "userId": "{{httpResponse.data.id}}",\n  "name": "{{httpResponse.data.name}}",\n  "items": {{json httpResponse.data.items}}\n}`}
                         className="min-h-30 font-mono text-sm"
                         {...field}
                       />
                       <FieldDescription>
-                        JSON with template variables. Use {"{{variables}}"} for
-                        simple values or {"{{json variable}}"} to stringify
-                        objects
+                        JSON body for this request. Use {"{{variables}}"} for
+                        simple values or {"{{json variable}}"} to insert objects
+                        without extra quotes.
                       </FieldDescription>
                       {fieldState.error && (
                         <FieldError errors={[fieldState.error]} />
@@ -198,13 +199,111 @@ export const HttpRequestDialog = ({
                   )}
                 />
               )}
-              <DialogFooter className="mt-4">
-                <Button type="submit">Save</Button>
-              </DialogFooter>
             </FieldGroup>
           </FieldSet>
-        </form>
-      </DialogContent>
-    </Dialog>
+
+          <NodeSetupGuide
+            sections={[
+              {
+                value: "method-url",
+                title: "1. Choosing method and URL",
+                content: (
+                  <>
+                    <SetupSteps
+                      steps={[
+                        <>
+                          Read the API docs for the endpoint you need (path,
+                          method, and whether a body is required).
+                        </>,
+                        <>
+                          Paste the full URL into <SetupEm>Endpoint URL</SetupEm>
+                          , including scheme and host (e.g.{" "}
+                          <SetupCode>https://api.example.com/v1/items</SetupCode>
+                          ).
+                        </>,
+                        <>
+                          Set <SetupEm>Method</SetupEm> to match the docs. The
+                          body field only appears for POST, PUT, and PATCH.
+                        </>,
+                      ]}
+                    />
+                    <p className="text-xs">
+                      Query params can go on the URL:{" "}
+                      <SetupCode>
+                        {"https://api.example.com/search?q={{query}}"}
+                      </SetupCode>
+                      .
+                    </p>
+                  </>
+                ),
+              },
+              {
+                value: "variables",
+                title: "2. Using variables in URL or body",
+                content: (
+                  <>
+                    <p>
+                      Insert outputs from earlier nodes with Handlebars-style
+                      templates:
+                    </p>
+                    <ul className="list-disc space-y-1 pl-4">
+                      <li>
+                        Strings / numbers:{" "}
+                        <SetupCode>{"{{myOpenAi.text}}"}</SetupCode>
+                      </li>
+                      <li>
+                        Nested fields:{" "}
+                        <SetupCode>
+                          {"{{stripe.customerId}}"}
+                        </SetupCode>
+                      </li>
+                      <li>
+                        Whole objects in JSON:{" "}
+                        <SetupCode>{"{{json httpResponse.data}}"}</SetupCode>
+                      </li>
+                    </ul>
+                    <p className="text-xs">
+                      Use <SetupCode>{"{{json ...}}"}</SetupCode> inside a JSON
+                      body when the value is an object or array so you do not
+                      wrap it in extra quotes.
+                    </p>
+                  </>
+                ),
+              },
+              {
+                value: "response",
+                title: "3. Reading the response in later nodes",
+                content: (
+                  <>
+                    <p>
+                      After this node runs, later steps can use the variable
+                      name you chose (e.g. <SetupCode>myApiCall</SetupCode>):
+                    </p>
+                    <ul className="list-disc space-y-1 pl-4">
+                      <li>
+                        <SetupCode>
+                          {`{{${watchVariableName}.httpResponse.data}}`}
+                        </SetupCode>{" "}
+                        — parsed response body
+                      </li>
+                      <li>
+                        Nested fields depend on the API shape, e.g.{" "}
+                        <SetupCode>
+                          {`{{${watchVariableName}.httpResponse.data.id}}`}
+                        </SetupCode>
+                      </li>
+                    </ul>
+                  </>
+                ),
+              },
+            ]}
+          />
+        </NodeConfigDialogBody>
+
+        <NodeConfigDialogFooter>
+          <Button type="submit">Save</Button>
+        </NodeConfigDialogFooter>
+      </NodeConfigDialogForm>
+    </NodeConfigDialog>
   );
 };

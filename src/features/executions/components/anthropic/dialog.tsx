@@ -1,14 +1,18 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  NodeConfigDialog,
+  NodeConfigDialogBody,
+  NodeConfigDialogFooter,
+  NodeConfigDialogForm,
+} from "@/components/shared/node-config-dialog";
+import {
+  NodeSetupGuide,
+  SetupCode,
+  SetupEm,
+  SetupSteps,
+} from "@/components/shared/node-setup-guide";
+import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldDescription,
@@ -98,18 +102,14 @@ export const AnthropicDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Anthropic Configuration</DialogTitle>
-          <DialogDescription>
-            Configure the AI model and prompts for this node.
-          </DialogDescription>
-        </DialogHeader>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="mt-4 space-y-8"
-        >
+    <NodeConfigDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Anthropic Configuration"
+      description="Run a Claude chat completion. Select a saved API credential, pick a model, and write your prompts."
+    >
+      <NodeConfigDialogForm onSubmit={form.handleSubmit(handleSubmit)}>
+        <NodeConfigDialogBody>
           <FieldSet>
             <FieldGroup>
               <Controller
@@ -142,7 +142,13 @@ export const AnthropicDialog = ({
                       disabled={isLoadingCredentials || !credentials?.length}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder={"Select a credential"} />
+                        <SelectValue
+                          placeholder={
+                            credentials?.length
+                              ? "Select a credential"
+                              : "No Anthropic credentials yet"
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {credentials?.map((credential) => (
@@ -160,7 +166,10 @@ export const AnthropicDialog = ({
                         ))}
                       </SelectContent>
                     </Select>
-
+                    <FieldDescription>
+                      API key stored under Credentials. Create one in the app if
+                      the list is empty — see the setup guide.
+                    </FieldDescription>
                     {fieldState.error && (
                       <FieldError errors={[fieldState.error]} />
                     )}
@@ -190,7 +199,8 @@ export const AnthropicDialog = ({
                       </SelectContent>
                     </Select>
                     <FieldDescription>
-                      The Anthropic model to use for completion
+                      Which Claude model runs this completion. Match capability
+                      and cost to your task.
                     </FieldDescription>
                     {fieldState.error && (
                       <FieldError errors={[fieldState.error]} />
@@ -204,16 +214,16 @@ export const AnthropicDialog = ({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>System Prompt (Optional)</FieldLabel>
+                    <FieldLabel>System Prompt (optional)</FieldLabel>
                     <Textarea
                       placeholder="You are a helpful assistant."
                       className="min-h-20 font-mono text-sm"
                       {...field}
                     />
                     <FieldDescription>
-                      Sets the behavior of the assistant. Use {"{{variables}}"}{" "}
-                      for simple values or {"{{json variable}}"} to stringify
-                      objects
+                      Instructions for how the model should behave (tone, role,
+                      constraints). Use {"{{variables}}"} or{" "}
+                      {"{{json variable}}"} if needed.
                     </FieldDescription>
                     {fieldState.error && (
                       <FieldError errors={[fieldState.error]} />
@@ -234,9 +244,9 @@ export const AnthropicDialog = ({
                       {...field}
                     />
                     <FieldDescription>
-                      The prompt to send to the AI. use {"{{variables}}"} for
-                      simple values or {"{{json variable}}"} to stringify
-                      objects
+                      The main request sent to the model. Use {"{{variables}}"}{" "}
+                      for simple values or {"{{json variable}}"} to stringify
+                      objects from earlier nodes.
                     </FieldDescription>
                     {fieldState.error && (
                       <FieldError errors={[fieldState.error]} />
@@ -244,14 +254,86 @@ export const AnthropicDialog = ({
                   </Field>
                 )}
               />
-
-              <DialogFooter className="mt-4">
-                <Button type="submit">Save</Button>
-              </DialogFooter>
             </FieldGroup>
           </FieldSet>
-        </form>
-      </DialogContent>
-    </Dialog>
+
+          <NodeSetupGuide
+            sections={[
+              {
+                value: "api-key",
+                title: "1. Create an API key and credential",
+                content: (
+                  <>
+                    <SetupSteps
+                      steps={[
+                        <>
+                          Go to{" "}
+                          <SetupEm>
+                            console.anthropic.com → API keys
+                          </SetupEm>{" "}
+                          and create a new key. Copy it once.
+                        </>,
+                        <>
+                          In this app, open <SetupEm>Credentials</SetupEm> →{" "}
+                          <SetupEm>New</SetupEm>, choose Anthropic, give it a
+                          name, and paste the key.
+                        </>,
+                        <>
+                          Return here and select that credential from the{" "}
+                          <SetupEm>Anthropic Credentials</SetupEm> dropdown.
+                        </>,
+                      ]}
+                    />
+                    <p className="text-xs">
+                      The key stays in your credentials store — do not put it in
+                      the prompt fields.
+                    </p>
+                  </>
+                ),
+              },
+              {
+                value: "prompts",
+                title: "2. System vs user prompt",
+                content: (
+                  <>
+                    <ul className="list-disc space-y-2 pl-4">
+                      <li>
+                        <SetupEm>System</SetupEm> — stable rules (persona,
+                        format, what to avoid). Optional.
+                      </li>
+                      <li>
+                        <SetupEm>User</SetupEm> — the actual task for this run,
+                        often including data from previous nodes.
+                      </li>
+                    </ul>
+                    <p className="text-xs">
+                      Example user prompt:{" "}
+                      <SetupCode>
+                        {"Draft a reply to: {{stripe.eventType}}"}
+                      </SetupCode>
+                    </p>
+                  </>
+                ),
+              },
+              {
+                value: "output",
+                title: "3. Using the model output later",
+                content: (
+                  <p>
+                    The completion text is available as{" "}
+                    <SetupCode>{`{{${watchVariableName}.text}}`}</SetupCode> in
+                    later nodes (Discord, Telegram, HTTP body, etc.).
+                  </p>
+                ),
+              },
+            ]}
+          />
+        </NodeConfigDialogBody>
+
+        <NodeConfigDialogFooter>
+          <Button type="submit">Save</Button>
+        </NodeConfigDialogFooter>
+      </NodeConfigDialogForm>
+    </NodeConfigDialog>
   );
 };
